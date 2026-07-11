@@ -1,15 +1,3 @@
-## Getting Started
-
-### Prerequisites
-- Docker Desktop
-- Node.js (for local development outside Docker)
-
-### Setup
-1. Clone the repository
-2. Copy `.env.example` to `.env` and fill in your own values
-3. Run `docker-compose up` to start the backend and database
-4. Backend will be available at `http://localhost:3000`
-   
 # DevTrack – Job Application Tracker
 
 A full-stack web application designed to help job seekers organize, track, and manage their job applications in one centralized platform. DevTrack simplifies the job search process by keeping application details, progress, recruiter notes, and follow-up reminders organized and accessible.
@@ -25,6 +13,19 @@ DevTrack is a personal full-stack project built to solve a real-world problem en
 The application enables users to securely manage their job applications, monitor each application's progress, and keep important information such as recruiter contacts, interview notes, and follow-up schedules in one place.
 
 ---
+
+## Getting Started
+
+### Prerequisites
+- Docker Desktop
+- Node.js (for local development outside Docker)
+
+### Setup
+1. Clone the repository
+2. Copy `.env.example` to `.env` and fill in your own values
+3. Run `docker-compose up` to start the backend and database
+4. Backend will be available at `http://localhost:3000`
+   
 
 ## Features
 
