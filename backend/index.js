@@ -2,6 +2,7 @@ const express = require('express');
 const pool = require('./db');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const authMiddleware = require('./authMiddleware');
 
 const app = express();
 
@@ -65,6 +66,10 @@ app.post('/login', async (req, res) => {
     console.error(err);
     res.status(500).json({ error: 'Login failed' });
   }
+});
+
+app.get('/profile', authMiddleware, (req, res) => {
+  res.json({ message: 'You are authenticated!', userId: req.userId });
 });
 
 app.listen(3000, () => {
