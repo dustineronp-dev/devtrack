@@ -72,6 +72,118 @@ app.get('/profile', authMiddleware, (req, res) => {
   res.json({ message: 'You are authenticated!', userId: req.userId });
 });
 
+app.post('/applications', authMiddleware, async (req, res) => {
+  const {
+    company_name,
+    job_title,
+    job_url,
+    applied_gmail,
+    date_applied,
+    status = 'Applied',
+    source,
+    notes,
+    follow_up_date
+  } = req.body;
+
+  try {
+    const result = await pool.query(
+      `INSERT INTO job_applications 
+        (user_id, company_name, job_title, job_url, applied_gmail, date_applied, status, source, notes, follow_up_date)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+       RETURNING *`,
+      [req.userId, company_name, job_title, job_url, applied_gmail, date_applied, status, source, notes, follow_up_date]
+    );
+
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to create application' });
+  }
+});
+
+app.get('/applications', authMiddleware, async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT * FROM job_applications WHERE user_id = $1 ORDER BY created_at DESC',
+      [req.userId]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch applications' });
+  }
+});
+
+app.get('/applications/:id', authMiddleware, async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT * FROM job_applications WHERE id = $1 AND user_id = $2',
+      [req.params.id, req.userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Application not found' });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch application' });
+  }
+});
+
+app.put('/applications/:id', authMiddleware, async (req, res) => {
+  const {
+    company_name,
+    job_title,
+    job_url,
+    applied_gmail,
+    date_applied,
+    status,
+    source,
+    notes,
+    follow_up_date
+  } = req.body;
+
+  try {
+    const result = await pool.query(
+      `UPDATE job_applications 
+       SET company_name = $1, job_title = $2, job_url = $3, applied_gmail = $4, 
+           date_applied = $5, status = $6, source = $7, notes = $8, follow_up_date = $9
+       WHERE id = $10 AND user_id = $11
+       RETURNING *`,
+      [company_name, job_title, job_url, applied_gmail, date_applied, status, source, notes, follow_up_date, req.params.id, req.userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Application not found' });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to update application' });
+  }
+});
+
+app.delete('/applications/:id', authMiddleware, async (req, res) => {
+  try {
+    const result = await pool.query(
+      'DELETE FROM job_applications WHERE id = $1 AND user_id = $2 RETURNING *',
+      [req.params.id, req.userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Application not found' });
+    }
+
+    res.json({ message: 'Application deleted', deleted: result.rows[0] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to delete application' });
+  }
+});
+
 app.listen(3000, () => {
   console.log('Server running on port 3000');
 });
