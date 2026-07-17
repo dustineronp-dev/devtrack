@@ -1,10 +1,13 @@
 const express = require('express');
 const pool = require('./db');
+const cors = require('cors');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const authMiddleware = require('./authMiddleware');
 
 const app = express();
+
+app.use(cors());
 
 app.use(express.json());
 
