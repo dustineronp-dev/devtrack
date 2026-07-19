@@ -23,7 +23,7 @@ function ApplicationForm() {
     if (isEditing) {
       const fetchApplication = async () => {
         const token = localStorage.getItem('token')
-        const response = await fetch(`http://localhost:3000/applications/${id}`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/applications/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         })
         const data = await response.json()
@@ -47,8 +47,8 @@ function ApplicationForm() {
     const token = localStorage.getItem('token')
 
     const url = isEditing
-      ? `http://localhost:3000/applications/${id}`
-      : 'http://localhost:3000/applications'
+      ? `${import.meta.env.VITE_API_URL}/applications/${id}`
+      : `${import.meta.env.VITE_API_URL}/applications`
     const method = isEditing ? 'PUT' : 'POST'
 
     try {

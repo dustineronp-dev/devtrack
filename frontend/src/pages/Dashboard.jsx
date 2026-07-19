@@ -10,7 +10,7 @@ function Dashboard() {
   const fetchApplications = async () => {
     const token = localStorage.getItem('token')
     try {
-      const response = await fetch('http://localhost:3000/applications', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/applications`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       const data = await response.json()
@@ -32,7 +32,7 @@ function Dashboard() {
 
   const handleDelete = async (id) => {
     const token = localStorage.getItem('token')
-    await fetch(`http://localhost:3000/applications/${id}`, {
+    await fetch(`${import.meta.env.VITE_API_URL}/applications/${id}`, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${token}` },
     })
