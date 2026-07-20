@@ -61,27 +61,36 @@ function Dashboard() {
         </div>
       </div>
 
-      <div className="grid gap-4">
-        {applications.map((app) => (
-          <div key={app.id} className="bg-white p-4 rounded-lg shadow flex justify-between items-center">
-            <div>
-              <h2 className="text-xl font-semibold">{app.company_name}</h2>
-              <p className="text-gray-600">{app.job_title}</p>
-              <span className="inline-block mt-2 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">
-                {app.status}
-              </span>
+      {applications.length === 0 ? (
+        <div className="text-center py-12 bg-white rounded-lg shadow">
+          <p className="text-gray-500 mb-4">No applications yet — start tracking your job search!</p>
+          <Link to="/applications/new" className="text-blue-600 hover:underline font-medium">
+            + Add your first application
+          </Link>
+        </div>
+      ) : (
+        <div className="grid gap-4">
+          {applications.map((app) => (
+            <div key={app.id} className="bg-white p-4 rounded-lg shadow flex justify-between items-center">
+              <div>
+                <h2 className="text-xl font-semibold">{app.company_name}</h2>
+                <p className="text-gray-600">{app.job_title}</p>
+                <span className="inline-block mt-2 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">
+                  {app.status}
+                </span>
+              </div>
+              <div className="flex gap-2">
+                <Link to={`/applications/edit/${app.id}`} className="text-blue-600 hover:underline">
+                  Edit
+                </Link>
+                <button onClick={() => handleDelete(app.id)} className="text-red-600 hover:underline">
+                  Delete
+                </button>
+              </div>
             </div>
-            <div className="flex gap-2">
-              <Link to={`/applications/edit/${app.id}`} className="text-blue-600 hover:underline">
-                Edit
-              </Link>
-              <button onClick={() => handleDelete(app.id)} className="text-red-600 hover:underline">
-                Delete
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
