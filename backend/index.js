@@ -88,13 +88,15 @@ app.post('/applications', authMiddleware, async (req, res) => {
     follow_up_date
   } = req.body;
 
+  const cleanFollowUpDate = follow_up_date === '' ? null : follow_up_date;
+
   try {
     const result = await pool.query(
       `INSERT INTO job_applications 
         (user_id, company_name, job_title, job_url, applied_gmail, date_applied, status, source, notes, follow_up_date)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
        RETURNING *`,
-      [req.userId, company_name, job_title, job_url, applied_gmail, date_applied, status, source, notes, follow_up_date]
+      [req.userId, company_name, job_title, job_url, applied_gmail, date_applied, status, source, notes, cleanFollowUpDate]
     );
 
     res.status(201).json(result.rows[0]);
@@ -148,6 +150,8 @@ app.put('/applications/:id', authMiddleware, async (req, res) => {
     follow_up_date
   } = req.body;
 
+  const cleanFollowUpDate = follow_up_date === '' ? null : follow_up_date;
+
   try {
     const result = await pool.query(
       `UPDATE job_applications 
@@ -155,7 +159,7 @@ app.put('/applications/:id', authMiddleware, async (req, res) => {
            date_applied = $5, status = $6, source = $7, notes = $8, follow_up_date = $9
        WHERE id = $10 AND user_id = $11
        RETURNING *`,
-      [company_name, job_title, job_url, applied_gmail, date_applied, status, source, notes, follow_up_date, req.params.id, req.userId]
+      [company_name, job_title, job_url, applied_gmail, date_applied, status, source, notes, cleanFollowUpDate, req.params.id, req.userId]
     );
 
     if (result.rows.length === 0) {
