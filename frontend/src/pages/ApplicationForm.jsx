@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams, Link } from 'react-router-dom'
+import toast from 'react-hot-toast'
 
 function ApplicationForm() {
   const navigate = useNavigate()
@@ -71,7 +72,7 @@ function ApplicationForm() {
         setLoading(false)
         return
       }
-
+      toast.success(isEditing ? 'Application updated!' : 'Application added!')
       navigate('/dashboard')
     } catch (err) {
       setError('Something went wrong')

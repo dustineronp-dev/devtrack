@@ -34,7 +34,7 @@ function Signup() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-indigo-100 via-white to-gray-50 px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <h1 className="font-[Sora] text-3xl font-bold text-gray-900">DevTrack</h1>
