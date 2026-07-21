@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import toast from 'react-hot-toast'
 
 const statusStyles = {
   Applied: 'bg-blue-100 text-blue-700',
@@ -38,13 +39,17 @@ function Dashboard() {
     fetchApplications()
   }, [])
 
-  const handleDelete = async (id) => {
-    const token = localStorage.getItem('token')
-    await fetch(`${import.meta.env.VITE_API_URL}/applications/${id}`, {
-      method: 'DELETE',
-      headers: { Authorization: `Bearer ${token}` },
-    })
-    fetchApplications()
+  const handleDelete = async (id, companyName) => {
+  const confirmed = window.confirm(`Delete your application to ${companyName}? This can't be undone.`)
+  if (!confirmed) return
+
+  const token = localStorage.getItem('token')
+  await fetch(`${import.meta.env.VITE_API_URL}/applications/${id}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` },
+  })
+  fetchApplications()
+  toast.success('Application deleted')
   }
 
   const handleLogout = () => {
@@ -128,7 +133,7 @@ function Dashboard() {
                   <Link to={`/applications/edit/${app.id}`} className="text-indigo-600 hover:underline font-medium">
                     Edit
                   </Link>
-                  <button onClick={() => handleDelete(app.id)} className="text-red-500 hover:underline font-medium">
+                  <button onClick={() => handleDelete(app.id, app.company_name)} className="text-red-500 hover:underline font-medium">
                     Delete
                   </button>
                 </div>
