@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, Link } from 'react-router-dom'
 
 function ApplicationForm() {
   const navigate = useNavigate()
@@ -18,6 +18,8 @@ function ApplicationForm() {
     follow_up_date: '',
   })
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [initialLoading, setInitialLoading] = useState(isEditing)
 
   useEffect(() => {
     if (isEditing) {
@@ -32,6 +34,7 @@ function ApplicationForm() {
           date_applied: data.date_applied?.split('T')[0] || '',
           follow_up_date: data.follow_up_date?.split('T')[0] || '',
         })
+        setInitialLoading(false)
       }
       fetchApplication()
     }
@@ -44,6 +47,7 @@ function ApplicationForm() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
+    setLoading(true)
     const token = localStorage.getItem('token')
 
     const url = isEditing
@@ -64,54 +68,130 @@ function ApplicationForm() {
       if (!response.ok) {
         const data = await response.json()
         setError(data.error)
+        setLoading(false)
         return
       }
 
       navigate('/dashboard')
     } catch (err) {
       setError('Something went wrong')
+      setLoading(false)
     }
   }
 
+  const inputClass =
+    'w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent'
+  const labelClass = 'block text-sm font-medium text-gray-700 mb-1'
+
+  if (initialLoading) {
+    return (
+      <div className="p-8 bg-gray-50 min-h-screen">
+        <p className="text-gray-400">Loading...</p>
+      </div>
+    )
+  }
+
   return (
-    <div className="p-8 bg-gray-100 min-h-screen">
-      <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow max-w-lg mx-auto">
-        <h1 className="text-2xl font-bold mb-6">
-          {isEditing ? 'Edit Application' : 'Add New Application'}
-        </h1>
+    <div className="bg-gray-50 min-h-screen py-8 px-4">
+      <div className="max-w-2xl mx-auto">
+        <Link to="/dashboard" className="text-sm text-gray-500 hover:text-indigo-600 mb-4 inline-block">
+          ← Back to Dashboard
+        </Link>
 
-        {error && <p className="text-red-500 mb-4">{error}</p>}
+        <form onSubmit={handleSubmit} className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-gray-200">
+          <h1 className="font-[Sora] text-2xl font-bold text-gray-900 mb-6">
+            {isEditing ? 'Edit Application' : 'Add New Application'}
+          </h1>
 
-        <input name="company_name" placeholder="Company Name" value={formData.company_name} onChange={handleChange} className="w-full border p-2 rounded mb-3" required />
-        <input name="job_title" placeholder="Job Title" value={formData.job_title} onChange={handleChange} className="w-full border p-2 rounded mb-3" required />
-        <input name="job_url" placeholder="Job Posting URL" value={formData.job_url} onChange={handleChange} className="w-full border p-2 rounded mb-3" />
-        <input name="applied_gmail" placeholder="Gmail Used" value={formData.applied_gmail} onChange={handleChange} className="w-full border p-2 rounded mb-3" />
-        <input name="date_applied" type="date" value={formData.date_applied} onChange={handleChange} className="w-full border p-2 rounded mb-3" required />
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg px-4 py-3 mb-4">
+              {error}
+            </div>
+          )}
 
-        <select name="status" value={formData.status} onChange={handleChange} className="w-full border p-2 rounded mb-3">
-          <option>Applied</option>
-          <option>Interview</option>
-          <option>Offer</option>
-          <option>Rejected</option>
-          <option>Ghosted</option>
-        </select>
+          {/* Basics */}
+          <div className="mb-6">
+            <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Basics</h2>
+            <div className="space-y-4">
+              <div>
+                <label className={labelClass}>Company Name</label>
+                <input name="company_name" value={formData.company_name} onChange={handleChange} className={inputClass} required />
+              </div>
+              <div>
+                <label className={labelClass}>Job Title</label>
+                <input name="job_title" value={formData.job_title} onChange={handleChange} className={inputClass} required />
+              </div>
+              <div>
+                <label className={labelClass}>Job Posting URL <span className="text-gray-400 font-normal">(optional)</span></label>
+                <input name="job_url" value={formData.job_url} onChange={handleChange} className={inputClass} placeholder="https://..." />
+              </div>
+            </div>
+          </div>
 
-        <select name="source" value={formData.source} onChange={handleChange} className="w-full border p-2 rounded mb-3">
-          <option value="">Select Source</option>
-          <option>LinkedIn</option>
-          <option>JobStreet</option>
-          <option>Indeed</option>
-          <option>Referral</option>
-          <option>Other</option>
-        </select>
+          {/* Application Details */}
+          <div className="mb-6">
+            <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Application Details</h2>
+            <div className="space-y-4">
+              <div>
+                <label className={labelClass}>Gmail Used <span className="text-gray-400 font-normal">(optional)</span></label>
+                <input name="applied_gmail" type="email" value={formData.applied_gmail} onChange={handleChange} className={inputClass} />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className={labelClass}>Date Applied</label>
+                  <input name="date_applied" type="date" value={formData.date_applied} onChange={handleChange} className={inputClass} required />
+                </div>
+                <div>
+                  <label className={labelClass}>Source <span className="text-gray-400 font-normal">(optional)</span></label>
+                  <select name="source" value={formData.source} onChange={handleChange} className={inputClass}>
+                    <option value="">Select source</option>
+                    <option>LinkedIn</option>
+                    <option>JobStreet</option>
+                    <option>Indeed</option>
+                    <option>Referral</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
 
-        <textarea name="notes" placeholder="Notes" value={formData.notes} onChange={handleChange} className="w-full border p-2 rounded mb-3" />
-        <input name="follow_up_date" type="date" value={formData.follow_up_date} onChange={handleChange} className="w-full border p-2 rounded mb-3" />
+          {/* Status & Notes */}
+          <div className="mb-6">
+            <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Status & Notes</h2>
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className={labelClass}>Status</label>
+                  <select name="status" value={formData.status} onChange={handleChange} className={inputClass}>
+                    <option>Applied</option>
+                    <option>Interview</option>
+                    <option>Offer</option>
+                    <option>Rejected</option>
+                    <option>Ghosted</option>
+                  </select>
+                </div>
+                <div>
+                  <label className={labelClass}>Follow-up Date <span className="text-gray-400 font-normal">(optional)</span></label>
+                  <input name="follow_up_date" type="date" value={formData.follow_up_date} onChange={handleChange} className={inputClass} />
+                </div>
+              </div>
+              <div>
+                <label className={labelClass}>Notes <span className="text-gray-400 font-normal">(optional)</span></label>
+                <textarea name="notes" value={formData.notes} onChange={handleChange} rows={3} className={inputClass} />
+              </div>
+            </div>
+          </div>
 
-        <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
-          {isEditing ? 'Update' : 'Create'} Application
-        </button>
-      </form>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-indigo-600 text-white py-2.5 rounded-lg font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? 'Saving...' : isEditing ? 'Update Application' : 'Create Application'}
+          </button>
+        </form>
+      </div>
     </div>
   )
 }
